@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>川农表白墙</title>
+    <link rel="icon" href="/public/img/favicon.ico" mce_href="/public/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="/node_modules/iview/dist/styles/iview.css">
+    <script type="text/javascript" src="/public/js/vue.min.js"></script>
+    <script type="text/javascript" src="/node_modules/iview/dist/iview.min.js"></script>
+    <link rel="stylesheet" href="/public/css/index.css">
+</head>
+<body>
+    <div id="app">
+        <Layout class="main">
+            <Header class="header">
+                <Row type='flex' class="w" justify="center" align='middle' style="height: 100%" >
+                    <i-col :xs="0" :sm="0" :md="4" :lg="6"></i-col>
+                    <i-col :xs="24" :sm="24" :md="16" :lg="12" class="nav" style="height: 100% " >
+                        <div class="nav-left">
+                            <a href="/"><img src="/public/img/logo.png" alt=""></a>
+                        </div>
+                        <div class="nav-center">
+                            <a href="#/newest">
+                                最新
+                            </a>
+                            <a href="#/hot">
+                                热门
+                            </a>
+                            <a href="#/sendbook">
+                                发帖
+                            </a>
+                        </div>
+                        <div class="nav-right">
+                            <a href="#/login" ref='loginPage' >登录</a>
+                            <Dropdown  ref='user' style="display: none">
+                                <a href="javascript:void(0)">
+                                    <Avatar icon="md-person" style="background-color: #fff;color: #2D8CF0"/>
+                                </a>
+                                <i-dropdownMenu  slot="list">
+                                    <ul class="ivu-dropdown-menu">
+                                        <li class="ivu-dropdown-item">
+                                            <a href="#/alterUser"  style="color: black">修改个人信息</a>
+                                        </li>
+                                        <li class="ivu-dropdown-item" >
+                                            <a href="#/userConfessionManage" style="color: black">表白管理</a>
+                                        </li>
+                                        <li class="ivu-dropdown-item" @click='quit'>
+                                            <a style="color: black">退出登录</a>
+                                        </li>
+                                    </ul>    
+                                </i-dropdownMenu>
+                            </Dropdown>
+                        </div>
+                    </i-col>
+                    <i-col :xs="0" :sm="0" :md="4" :lg="6"></i-col>
+                </Row>
+            </Header>
+            <Content class="content" style="background-color: #F5F7F9;">
+                <Row type='flex' class="w" justify="center" align='middle'>
+                    <i-col :xs="0" :sm="0" :md="4" :lg="6"></i-col>
+                    <i-col :xs="24" :sm="24" :md="16" :lg="12" style="height: 100%">
+                        <router-view>
+                        </router-view>
+                    </i-col>
+                    <i-col :xs="0" :sm="0" :md="4" :lg="6"></i-col>
+                </Row>
+            </Content>
+            <Footer class="footer">
+                    2019 zhaosirlaile &copy; 蜀ICP备19012587号
+            </Footer>
+        </Layout>
+    </div>
+
+    <template id='newest'>
+        <div class="itemList" ref='itemList'>
+            <div class="item" v-for='(item,index) of itemList' :key="index" @mouseover.once='updateDiscussdBrowse(item)'>
+                <Row class="item-header">
+                    <div class="item-header-img">
+                        <Avatar icon="md-person" />
+                    </div>
+                    <div class="item-user-information">
+                        <p v-text='item.uUsername'></p>
+                        <p>{{ item.dTime | replaceTime() }}</p>
+                    </div>
+                </Row>
+                <Row class="item-content">
+                    <p>
+                        {{ item.dContent }}
+                    </p>
+                </Row>
+                <div class="item-affect" >
+                    <div>
+                        <div>
+                            <Icon type="md-thumbs-up" @click='up(item,index)' ref='itemUp' :color='reverseUp(item.isUp)'/>
+                        </div>
+                        <div>
+                            <span>{{ item.dUp }} </span>
+                        </div>
+                    </div>
+                    <div>
+                        <p>浏览了{{ item.dBrowse }}次</p>
+                    </div>
+                </div>
+                <Row style="margin-top: -15px">
+                    <Divider />
+                </Row>
+                <div class="item-dicuss">
+                    <div class="fabiaoitem"  v-for='i of item.cCommentList' >
+                        <p><span class="comment_user">{{ i.uUsername }}</span> : <span>{{ i.cContent }}</span></p>
+                    </div>
+                </div>
+                <Row>
+                    <i-input v-model='item.cComment' search enter-button="发布" @on-search='sendComment(item)' placeholder="请输入评论..." />
+                </Row>
+
+            </div>
+            <i-button type='primary' class="jiazai" @click='jiazai'>加载更多</i-button>
+        </div>
+    </template>
+    <template id='hot'>
+        <div class="itemList" ref='itemList' >
+            <div class="item" v-for='(item,index) of itemList' :key="index" @mouseover.once='updateDiscussdBrowse(item)'>
+                <Row class="item-header">
+                    <div class="item-header-img">
+                        <Avatar icon="md-person" />
+                    </div>
+                    <div class="item-user-information">
+                        <p v-text='item.uUsername'></p>
+                        <p>{{ item.dTime | replaceTime() }}</p>
+                    </div>
+                </Row>
+                <Row class="item-content">
+                    <p>
+                        {{ item.dContent }}
+                    </p>
+                </Row>
+                <div class="item-affect" >
+                    <div>
+                        <div>
+                            <Icon type="md-thumbs-up" @click='up(item,index)' ref='itemUp' :color='reverseUp(item.isUp)'/>
+                        </div>
+                        <div>
+                            <span>{{ item.dUp }} </span>
+                        </div>
+                    </div>
+                    <div>
+                        <p>浏览了{{ item.dBrowse }}次</p>
+                    </div>
+                </div>
+                <Row style="margin-top: -15px">
+                    <Divider />
+                </Row>
+                <div class="item-dicuss">
+                    <div class="fabiaoitem"  v-for='i of item.cCommentList' >
+                        <p><span class="comment_user">{{ i.uUsername }}</span> : <span>{{ i.cContent }}</span></p>
+                    </div>
+                </div>
+                <Row>
+                    <i-input v-model='item.cComment' search enter-button="发布" @on-search='sendComment(item)' placeholder="请输入评论..." />
+                </Row>
+            </div>
+            <i-button type='primary' class="jiazai" @click='jiazai'>加载更多</i-button>
+        </div>
+    </template>
+    <template id='sendbook'>
+        <div class="sendbook">
+            <i-col span='2'>
+                &nbsp;
+            </i-col>
+
+            <i-col span='20'>
+                <Row>
+                    <Divider>发帖须知</Divider>
+                </Row>
+                <Row class="notice">
+                    <p>1. 表达自已的感情，不含政治、色情、广告、诽谤、歧视等内容。</p>
+                </Row>
+                <Row class="notice">
+                    <p>2. 转载请注明出处。</p>
+                </Row>
+                <Row class="textarea">
+                    <i-input  type="textarea" v-model='textareaContent' :rows="4" placeholder="请输入你要发表的评论..." />
+                </Row>
+                <Row>
+                    <i-button type="primary" long @click='sendbook'>发表</i-button>
+                </Row>
+            </i-col>
+            <i-col span='2'>
+                &nbsp;
+            </i-col>
+        </div>
+    </template>
+    <template id='login'>
+        <Row class="login">
+            <div>
+                <div class="login-top">
+                    <p ref='num1' class="p-hover" @click='switchturn(1)' title="登录">登录</p>
+                    <p ref="num2" @click='switchturn(2)' title="注册">注册</p>
+                </div>
+                <div class="login-content">
+                    <div ref='login-content-in' class="login-content-in">
+                        <div>
+                            <i-input type='text' v-model='login_in_email'  prefix="md-contact" size="large" @input='throttle(checkLoginEmail)' placeholder="请输入邮箱" />
+                                <Icon :type="login_in_email_icon" :color='login_in_email_icon_color'  slot="suffix" ></Icon>
+                            </i-input>
+                        </div>
+                        <div>
+                            <i-input type='password' v-model='login_in_password' maxLength='6' clearable prefix="md-lock" size="large" placeholder="请输入密码" />
+                        </div>
+                        <div>
+                            <i-button type="primary" long @click='login' class="button">
+                                登录
+                            </i-button>
+                        </div>
+                    </div>
+                    <div ref='login-content-register' style="display: none" class="login-content-register">
+                        <div>
+                            <i-input  prefix="md-contact" size="large" @input='throttle(checkEmail)' placeholder="请输入邮箱" v-model='login_register_email' />
+                                <Icon :type="login_register_email_icon" :color='login_register_email_icon_color'  slot="suffix" ></Icon>
+                            </i-input>
+                        </div>
+                        <ROW type="flex" justify="space-between" align="middle">
+                            <i-col span='14'>
+                                <i-input maxLength='6' prefix="md-checkmark"  size="large" placeholder="请输入验证码" v-model='login_register_verify'  @input='throttle(checkVerifyNumber)'/>
+                                    <Icon :type="login_register_verify_icon" :color='login_register_verify_icon_color'  slot="suffix" ></Icon>
+                                </i-input>
+                            </i-col>
+                            <i-col span='9' >
+                                <i-button type="primary" @click='sendEmail' style="height: 36px;" long disabled ref="sendEmailBtn" style="text-align: center" >
+                                    {{ login_register_time_text }}
+                                </i-button>
+                            </i-col>
+                        </ROW>
+                        <div>
+                            <i-input type='password' clearable prefix="md-lock"  maxLength='6' size="large" placeholder="请输入密码" v-model='login_register_password'/>
+                        </div>
+                        <div>
+                            <i-button type="primary" long @click='register' class="button">
+                                注册
+                            </i-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Row>
+    </template>
+    <template id='alterUser'>
+        <i-form class="alterUser" >
+            <Row>
+                <i-input size="large" prefix="md-contact" clearable placeholder="用户名" v-model:value='username'  maxLength='10'>
+                </i-input>
+            </Row>
+            <Row type='flex' type="flex"  align="top" >
+                <i-col span='2' style="margin-left: 0.6rem;font-size: 1rem;line-height:22px">
+                    <Icon type="md-transgender" />
+                </i-col>
+                <i-col span='18'>
+                    <i-switch size="large" v-model:value='sex'>
+                        <span slot="open">男</span>
+                        <span slot="close">女</span>
+                    </i-switch>                
+                </i-col>
+            </Row>
+            <Row type='flex' justify="space-between" >
+                <i-col span='10'>
+                    <i-button @click='alterUser' long type='primary' style="font-size: 1rem">
+                        确认
+                    </i-button>
+                </i-col>
+                <i-col span='10'>
+                    <i-button long type='primary' style="font-size: 1rem" @click='cannelAlterUser'>
+                        取消
+                    </i-button>
+                </i-col>
+            </Row>
+        </i-form>
+    </template>
+    <template id='userConfessionManage'>
+        <div class="userConfessionManage">
+            <div class="item" v-for='item of confessionList'>
+                <Row class="userConfessionManage_content">
+                    <i-col>
+                        {{ item.dContent}}
+                    </i-col>
+                </Row>
+                <Row>
+                    <i-col :xs="12" :sm="8" :md="6" :lg="6" style="line-height: 32px">
+                        {{ item.dTime | replaceManageTime }}
+                    </i-col>
+                    <i-col :xs="4" :sm="2" :md="2" :lg="2" style="line-height: 32px">
+                        <icon size='=35' type="md-thumbs-up"></icon>{{ item.dUp }}
+                    </i-col>
+                    <i-col :xs="4" :sm="2" :md="2" :lg="2" style="line-height: 32px">
+                        <icon size='=35' type="md-eye"></icon>{{ item.dBrowse }}
+                    </i-col>
+                    <i-col :xs="1" :sm="8" :md="11" :lg="12" style="line-height: 32px">
+                        &nbsp;
+                    </i-col>
+                    <i-col :xs="3" :sm="2" :md="3" :lg="2">
+                        <i-button  icon="md-close" type="primary" shape="circle" @click='deleteConfession(item)'></i-button>
+                    </i-col>
+                </Row>
+            </div>
+        </div>
+    </template>
+    <script src="/public/js/vue-router.min.js"></script>
+    <script src="/node_modules/axios/dist/axios.min.js"></script>
+    <script src="/public/js/index.js"></script>
+</body>
+</html>
